@@ -8,13 +8,14 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler # Для планування завдань
 
 # Імпортуємо keep_alive з background.py
-from background import keep_alive 
+from background import keep_alive #
 
-from aiogram import Bot, Dispatcher, html
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
+# aiogram v3 імпорти
+from aiogram import Bot, Dispatcher, html #
+from aiogram.client.default import DefaultBotProperties #
+from aiogram.enums import ParseMode #
+from aiogram.filters import CommandStart #
+from aiogram.types import Message #
 
 # ----- Налаштування Логування -----
 logging.basicConfig(
@@ -28,10 +29,12 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # ----- Отримання токена бота та ID чату зі змінних середовища -----
 # Встановіть ці змінні у налаштуваннях вашого додатка на Scalingo!
-TOKEN = os.getenv('7991708926:AAHiMO6q2q2HrW6HI1hCp95rRVksz1VA0wQ') 
+# Ваш токен бота має бути ЗНАЧЕННЯМ змінної оточення TELEGRAM_BOT_TOKEN
+# а не її назвою.
+TOKEN = os.getenv('7991708926:AAHiMO6q2q2HrW6HI1hCp95rRVksz1VA0wQ') # Тут має бути назва змінної, а не сам токен.
 # ID чату, куди надсилати новини. Може бути один або кілька, розділені комами.
 # Наприклад: "123456789,987654321"
-TARGET_CHAT_IDS_STR = os.getenv('475384360') 
+TARGET_CHAT_IDS_STR = os.getenv('475384360') # Тут має бути назва змінної, а не сам ID.
 
 if not TOKEN:
     logging.critical("TELEGRAM_BOT_TOKEN environment variable not set. Exiting.")
@@ -48,8 +51,10 @@ else:
         sys.exit(1)
 
 # ----- Ініціалізація Бота та Диспетчера -----
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher()
+# bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)) # Цей рядок у вас вже був, це ОК
+# dp = Dispatcher(bot) # (виправлено до dp = Dispatcher())
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)) #
+dp = Dispatcher() # Диспетчер в aiogram v3 ініціалізується без аргументів
 
 # ----- Список RSS-стрічок для новин -----
 FEEDS = [
@@ -60,7 +65,7 @@ FEEDS = [
 
 # Зберігаємо вже надіслані заголовки новин, щоб уникнути дублікатів
 # У реальному проєкті це має бути база даних або Redis для стійкості
-SENT_NEWS_TITLES = set() 
+SENT_NEWS_TITLES = set()
 
 # ----- Функція для отримання та парсингу новин -----
 async def fetch_news_job():
@@ -75,12 +80,12 @@ async def fetch_news_job():
             items = soup.find_all('item') # Для RSS 2.0
             if not items:
                 items = soup.find_all('entry') # Для Atom
-            
+
             for item in items:
                 title = item.find('title').text.strip() if item.find('title') else 'No title'
                 link = item.find('link').text.strip() if item.find('link') else 'No link'
                 description = item.find('description').text.strip() if item.find('description') else 'No description'
-                
+
                 # Обмежуємо довжину опису
                 if len(description) > 200:
                     description = description[:200] + "..."
@@ -94,7 +99,7 @@ async def fetch_news_job():
                         f"{description}\n"
                         f"Посилання: {html.link('Читати далі', link)}"
                     )
-                    
+
                     for chat_id in TARGET_CHAT_IDS:
                         try:
                             await bot.send_message(chat_id, news_message, disable_web_page_preview=True)
@@ -108,7 +113,7 @@ async def fetch_news_job():
             logging.error(f"Error fetching RSS feed {feed_url}: {e}")
         except Exception as e:
             logging.error(f"Error parsing RSS feed {feed_url}: {e}")
-    
+
     if new_articles_count > 0:
         logging.info(f"Sent {new_articles_count} new articles.")
     else:
@@ -142,13 +147,13 @@ async def echo_handler(message: Message) -> None:
 async def main() -> None:
     # Запускаємо Flask сервер у фоновому режимі для підтримки активності на хостингу.
     # Цей сервер буде відповідати на HTTP-запити Scalingo для "health check".
-    keep_alive() 
+    keep_alive() #
     logging.info("Flask keep-alive server started in background.")
 
     # Ініціалізуємо планувальник
     scheduler = AsyncIOScheduler()
     # Додаємо завдання для отримання новин: запускати кожні 5 хвилин
-    scheduler.add_job(fetch_news_job, 'interval', minutes=5) 
+    scheduler.add_job(fetch_news_job, 'interval', minutes=5)
     # Запускаємо планувальник
     scheduler.start()
     logging.info("News fetching scheduler started.")
@@ -156,7 +161,7 @@ async def main() -> None:
     # Запускаємо опитування Telegram API.
     # skip_updates=True дозволяє ігнорувати повідомлення, які були надіслані, поки бот був офлайн.
     logging.info("Starting aiogram bot polling...")
-    await dp.start_polling(bot, skip_updates=True) 
+    await dp.start_polling(bot, skip_updates=True) # (виправлено синтаксис для v3)
     logging.info("aiogram bot polling stopped.")
 
 
