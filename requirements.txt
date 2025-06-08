@@ -6,6 +6,7 @@ aiosignal
 annotated-types
 apscheduler
 attrs
+beautifulsoup4
 certifi
 Flask
 frozenlist
