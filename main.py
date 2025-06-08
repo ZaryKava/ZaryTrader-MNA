@@ -8,14 +8,14 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler # Для планування завдань
 
 # Імпортуємо keep_alive з background.py
-from background import keep_alive #
+from background import keep_alive
 
 # aiogram v3 імпорти
-from aiogram import Bot, Dispatcher, html #
-from aiogram.client.default import DefaultBotProperties #
-from aiogram.enums import ParseMode #
-from aiogram.filters import CommandStart #
-from aiogram.types import Message #
+from aiogram import Bot, Dispatcher, html
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.filters import CommandStart
+from aiogram.types import Message
 
 # ----- Налаштування Логування -----
 logging.basicConfig(
@@ -29,12 +29,10 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 # ----- Отримання токена бота та ID чату зі змінних середовища -----
 # Встановіть ці змінні у налаштуваннях вашого додатка на Scalingo!
-# Ваш токен бота має бути ЗНАЧЕННЯМ змінної оточення TELEGRAM_BOT_TOKEN
-# а не її назвою.
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN') # Тут має бути назва змінної, а не сам токен.
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN') # Змінено на правильну назву змінної
 # ID чату, куди надсилати новини. Може бути один або кілька, розділені комами.
 # Наприклад: "123456789,987654321"
-TARGET_CHAT_IDS_STR = os.getenv('475384360') # Тут має бути назва змінної, а не сам ID.
+TARGET_CHAT_IDS_STR = os.getenv('TARGET_CHAT_IDS') # Змінено на правильну назву змінної
 
 if not TOKEN:
     logging.critical("TELEGRAM_BOT_TOKEN environment variable not set. Exiting.")
@@ -51,9 +49,7 @@ else:
         sys.exit(1)
 
 # ----- Ініціалізація Бота та Диспетчера -----
-# bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)) # Цей рядок у вас вже був, це ОК
-# dp = Dispatcher(bot) # (виправлено до dp = Dispatcher())
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)) #
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher() # Диспетчер в aiogram v3 ініціалізується без аргументів
 
 # ----- Список RSS-стрічок для новин -----
@@ -127,25 +123,29 @@ async def command_start_handler(message: Message) -> None:
     """
     user_name = message.from_user.full_name if message.from_user else "Гість"
     await message.answer(f"Привіт, {html.bold(user_name)}! Я бот, який надсилає новини з ринку Форекс. "
-                        
+                         f"Щоб отримати допомогу, напиши /help.\n"
+                         f"Щоб я надсилав новини у цей чат, ваш Chat ID: {message.chat.id}. "
+                         f"Попросіть власника бота додати його до TARGET_CHAT_IDS.")
 
 # ----- Обробник для інших повідомлень (ECHO) -----
-@dp.message()
-async def echo_handler(message: Message) -> None:
-    """
-    Цей обробник копіює отримане повідомлення.
-    Якщо повідомлення не може бути скопійоване (наприклад, стикер), він відповідає "Nice try!".
-    """
-    try:
-        await message.send_copy(chat_id=message.chat.id)
-    except TypeError:
-        await message.answer("Nice try!")
+# Цей блок закоментовано, щоб бот не відповідав на всі повідомлення, крім /start.
+# Якщо ви хочете, щоб бот відповідав на інші повідомлення, розкоментуйте його.
+# @dp.message()
+# async def echo_handler(message: Message) -> None:
+#     """
+#     Цей обробник копіює отримане повідомлення.
+#     Якщо повідомлення не може бути скопійоване (наприклад, стикер), він відповідає "Nice try!".
+#     """
+#     try:
+#         await message.send_copy(chat_id=message.chat.id)
+#     except TypeError:
+#         await message.answer("Nice try!")
 
 # ----- Основна асинхронна функція запуску -----
 async def main() -> None:
     # Запускаємо Flask сервер у фоновому режимі для підтримки активності на хостингу.
     # Цей сервер буде відповідати на HTTP-запити Scalingo для "health check".
-    keep_alive() #
+    keep_alive()
     logging.info("Flask keep-alive server started in background.")
 
     # Ініціалізуємо планувальник
@@ -159,7 +159,7 @@ async def main() -> None:
     # Запускаємо опитування Telegram API.
     # skip_updates=True дозволяє ігнорувати повідомлення, які були надіслані, поки бот був офлайн.
     logging.info("Starting aiogram bot polling...")
-    await dp.start_polling(bot, skip_updates=True) # (виправлено синтаксис для v3)
+    await dp.start_polling(bot, skip_updates=True)
     logging.info("aiogram bot polling stopped.")
 
 
