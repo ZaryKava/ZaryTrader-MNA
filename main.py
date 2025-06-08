@@ -127,9 +127,7 @@ async def command_start_handler(message: Message) -> None:
     """
     user_name = message.from_user.full_name if message.from_user else "Гість"
     await message.answer(f"Привіт, {html.bold(user_name)}! Я бот, який надсилає новини з ринку Форекс. "
-                         f"Щоб отримати допомогу, напиши /help.\n"
-                         f"Щоб я надсилав новини у цей чат, ваш Chat ID: {message.chat.id}. "
-                         f"Попросіть власника бота додати його до TARGET_CHAT_IDS.")
+                        
 
 # ----- Обробник для інших повідомлень (ECHO) -----
 @dp.message()
