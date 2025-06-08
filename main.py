@@ -122,11 +122,8 @@ async def command_start_handler(message: Message) -> None:
     Цей обробник відповідає на команду /start
     """
     user_name = message.from_user.full_name if message.from_user else "Гість"
-    await message.answer(f"Привіт, {html.bold(user_name)}! Я бот, який надсилає новини з ринку Форекс. "
-                         f"Щоб отримати допомогу, напиши /help.\n"
-                         f"Щоб я надсилав новини у цей чат, ваш Chat ID: {message.chat.id}. "
-                         f"Попросіть власника бота додати його до TARGET_CHAT_IDS.")
-
+    await message.answer(f"Привіт, Ivan Zarytskyi! Я бот, який надсилає новини з ринку Форекс.")
+                        
 # ----- Обробник для інших повідомлень (ECHO) -----
 # Цей блок закоментовано, щоб бот не відповідав на всі повідомлення, крім /start.
 # Якщо ви хочете, щоб бот відповідав на інші повідомлення, розкоментуйте його.
