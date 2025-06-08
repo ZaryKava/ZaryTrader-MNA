@@ -2,7 +2,7 @@ aiogram==3.20.0.post0
 Flask==3.0.3
 requests==2.31.0
 beautifulsoup4==4.12.3 # Додайте для парсингу RSS
-lxml==4.9.3 # Рекомендовано для швидшого парсингу з BeautifulSoup
+lxml
 APScheduler==3.10.4 # Додайте для планувальника
 aiofiles==24.1.0
 aiohttp==3.11.18
