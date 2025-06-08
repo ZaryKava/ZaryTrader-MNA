@@ -11,6 +11,23 @@ from aiogram.types import Message
 
 TOKEN = '7991708926:AAHiMO6q2q2HrW6HI1hCp95rRVksz1VA0wQ'
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("telegram.ext").setLevel(logging.INFO)
+
+application = ApplicationBuilder().token(TOKEN).build()
+
+FEEDS = [
+    "https://www.forexlive.com/feed/",
+    "https://www.investing.com/rss/news.rss",
+    "https://www.fxstreet.com/rss",
+]
 
 dp = Dispatcher()
 
